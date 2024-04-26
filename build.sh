@@ -20,6 +20,16 @@ elif [ "$1" == "osbo" ]; then
 	apt-get install -y libmosquitto-dev
 	echo "Compiling firmware..."
 	g++ -o OpenSprinkler -DOSBO -std=c++14 main.cpp OpenSprinkler.cpp program.cpp opensprinkler_server.cpp utils.cpp weather.cpp gpio.cpp etherport.cpp mqtt.cpp -lpthread -lmosquitto
+elif grep -q "Raspbian GNU/Linux 12 (bookworm)" /etc/os-release; then
+	echo "Installing required libraries..."
+	apt-get update
+	apt-get install -y libmosquitto-dev libgpiod-dev
+	echo "wget @jbalonso's gpiod.cpp, if we haven't already"
+	if [ ! -f "gpiod.cpp" ]; then
+		wget https://raw.githubusercontent.com/jbalonso/opensprinkler-firmware/e24b16abb30dd83deaeff6d708e96278ba982e6f/gpio.cpp -O gpiod.cpp
+	fi
+	echo "Compiling firmware..."
+	g++ -o OpenSprinkler -DOSPI -std=c++14 main.cpp OpenSprinkler.cpp program.cpp opensprinkler_server.cpp utils.cpp weather.cpp gpiod.cpp etherport.cpp mqtt.cpp -lpthread -lmosquitto -lgpiod
 else
 	echo "Installing required libraries..."
 	apt-get update
